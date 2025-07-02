@@ -2,6 +2,11 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import User from "../models/user-schema";
 
 const requireAuth = async (req: any, res: any, next: any) => {
+  // Let OPTIONS requests pass through (CORS preflight)
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
   const { authorization } = req.headers;
   const secret = process.env.JWT_SECRET;
 
