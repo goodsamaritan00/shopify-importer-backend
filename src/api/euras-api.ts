@@ -1,0 +1,116 @@
+import dotenv from "dotenv";
+import formatEurasData from "../utils/format-euras-data";
+dotenv.config();
+
+// CREATE EURAS SESSION
+async function createSession(): Promise<string> {
+  const EED_ID = "UOoLEAQBfex57Q6O";
+
+  if (!EED_ID) {
+    throw new Error("EURAS_TOKEN environment variable is not defined");
+  }
+
+  const params = new URLSearchParams({
+    format: "json",
+    id: EED_ID,
+    art: "neuesitzung",
+  });
+  console.log("EED_ID:", EED_ID);
+
+  const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0",
+    },
+  });
+
+  const text = await response.text();
+
+  if (text.startsWith("ERROR")) {
+    throw new Error("Failed to create session");
+  }
+
+  const data = JSON.parse(text);
+
+  if (data.fehlernummer !== "0") {
+    throw new Error(`API Error: ${data.fehlernummer}`);
+  }
+
+  console.log(data.sessionid);
+
+  return data.sessionid;
+}
+
+let cachedSessionId: string | null = null;
+let cachedSessionExpiry = 0;
+
+const SESSION_TTL_MS = 10 * 60 * 1000; // 10 min, adjust if needed
+
+async function getCachedSession(): Promise<string> {
+  const now = Date.now();
+  if (!cachedSessionId || now > cachedSessionExpiry) {
+    cachedSessionId = await createSession();
+    cachedSessionExpiry = now + SESSION_TTL_MS;
+  }
+  return cachedSessionId;
+}
+
+
+// GET EURAS PRODUCTS
+export const fetchEurasProduct = async (
+  suchbg: string,
+  anzahl: string,
+  seite: string,
+) => {
+  const eurasToken = process.env.EURAS_TOKEN;
+
+  if (!eurasToken) {
+    throw new Error("Token not provided");
+  }
+
+  try {
+    console.time("session");
+    const sessionId = await getCachedSession();
+    console.timeEnd("session");
+
+
+    const params = new URLSearchParams({
+      format: "json",
+      id: eurasToken,
+      art: "artikelsuche",
+      sessionid: sessionId,
+      suchbg: suchbg,
+      anzahl: anzahl,
+      seite: seite,
+      bigPicture: "1",
+      morepics: "1",
+      artikeldetails: "1",
+      attrib: "1",
+      VGneedDevice: "1",
+    });
+
+    const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
+    console.time('fetch')
+    const response = await fetch(url);
+    const text = await response.text();
+    const data = JSON.parse(text);
+    console.timeEnd('fetch')
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// GET EURAS PRODUCT BY ID
+
+export const fetchEurasProductBySKU = async (sku: string) => {
+  try {
+    const data = await fetchEurasProduct(sku, "1", "1");
+    const dataObj = Object.entries(data.treffer)[0][1];
+    return formatEurasData(dataObj);
+  } catch (error) {
+    console.log(error);
+  }
+};
