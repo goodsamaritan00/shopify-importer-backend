@@ -21,7 +21,7 @@ export const loginUser = async (req: any, res: any) => {
 
     res.status(200).json({ email, token });
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error });
   }
 };
 

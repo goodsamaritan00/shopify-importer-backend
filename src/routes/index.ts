@@ -11,7 +11,7 @@ import {
 } from "../controllers/shopify-controller";
 
 import { registerUser, loginUser } from "../controllers/user-controller";
-import { searchEuras } from "../controllers/euras-controller";
+import { searchEuras, searchAppliances, searchProductsByAppliances } from "../controllers/euras-controller";
 
 const router = express.Router();
 
@@ -19,10 +19,12 @@ const router = express.Router();
 router.post("/login", loginUser);
 router.post("/register", registerUser);
 
-router.use(requireAuth);
+// router.use(requireAuth);
 
 // PROTECTED ROUTES (require auth)
 router.get("/eurasProductSearch", searchEuras);
+router.get("/eurasAppliancesSearch", searchAppliances);
+router.get("/eurasProductsByAppliances", searchProductsByAppliances);
 router.post("/addProduct", addProduct);
 router.post("/shopifyGraphiql", graphQLController);
 router.delete("/deleteProduct/:productId", deleteProduct);
