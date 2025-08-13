@@ -134,7 +134,7 @@ export const fetchEurasAppliances = async (suchbg: string, anzahl: string, seite
 }
 
 // Get products by selected appliance
-export const fetchEurasProductsByAppliances = async (suchbg: string, geraeteid: string, seite: string) => {
+export const fetchEurasProductsByAppliances = async (suchbg: string, seite: string, geraeteid: string) => {
 
   const eurasToken = process.env.EURAS_TOKEN;
   const sessionId = await getCachedSession();
@@ -151,7 +151,7 @@ export const fetchEurasProductsByAppliances = async (suchbg: string, geraeteid: 
       art: "geraeteartikel", 
       sessionid: sessionId,
       seite: seite,
-      vgruppe: 'top',
+      suchbg: suchbg,
       geraeteid: geraeteid,
       attrib: '1',
       bigPicture: '1'

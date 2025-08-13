@@ -43,7 +43,7 @@ export const searchAppliances = async (req: Request, res: Response) => {
 };
 
 export const searchProductsByAppliances = async (req: Request, res: Response) => {
-  const { suchbg, geraeteid, seite } = req.query;
+  const {suchbg, seite, geraeteid } = req.query;
 
   if (
     typeof suchbg !== "string" ||
@@ -54,7 +54,7 @@ export const searchProductsByAppliances = async (req: Request, res: Response) =>
   }
 
   try {
-    const data = await fetchEurasProductsByAppliances(suchbg, geraeteid, seite);
+    const data = await fetchEurasProductsByAppliances(suchbg, seite, geraeteid)
     return res.json(data);
   } catch (error) {
     console.error("Failed to fetch from Euras:", error);

@@ -1,10 +1,8 @@
-import cron = require("node-cron");
 import { fetchEurasProductBySKU } from "./api/euras-api";
 import { getImportedProducts, updateShopifyProduct } from "./api/shopify-api";
 import { io } from "./index";
 import compareObjects from "./utils/compare-objects";
 
-// You should replace this with the actual type of your products from Shopify
 type Product = {
   id: string;
   variants?: { sku?: string }[];
