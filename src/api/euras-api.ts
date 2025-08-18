@@ -169,6 +169,42 @@ export const fetchEurasProductsByAppliances = async (suchbg: string, seite: stri
   }
 }
 
+// Get products by selected appliance
+export const fetchEurasProductsByAppliancesCategory = async (vgruppe: string, seite: string, geraeteid: string) => {
+
+  const eurasToken = process.env.EURAS_TOKEN;
+  const sessionId = await getCachedSession();
+  
+  try {
+
+    if (!eurasToken) {
+      throw new Error("Token not provided");
+    }
+
+    const params = new URLSearchParams({
+      format: "json",
+      id: eurasToken,
+      art: "geraeteartikel", 
+      sessionid: sessionId,
+      seite: seite,
+      vgruppe: vgruppe,
+      geraeteid: geraeteid,
+      attrib: '1',
+      bigPicture: '1'
+    });
+
+    const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
+    const response = await fetch(url);
+    const text = await response.text();
+    const data = JSON.parse(text);
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
 
 // GET EURAS PRODUCT BY ID
 export const fetchEurasProductBySKU = async (sku: string) => {
@@ -180,3 +216,34 @@ export const fetchEurasProductBySKU = async (sku: string) => {
     console.log(error);
   }
 };
+
+// GET PRODUCTS BY APPLIANCES CATEGORIES
+export const fetchEurasApplianceCategories = async (geraeteid: string) => {
+  const eurasToken = process.env.EURAS_TOKEN;
+  const sessionId = await getCachedSession();
+
+  try {
+     if (!eurasToken) {
+      throw new Error("Token not provided");
+      }
+
+      const params = new URLSearchParams({
+        format: "json",
+        id: eurasToken,
+        art: "geraeteartikelgruppen", 
+        sessionid: sessionId,
+        geraeteid: geraeteid
+      });
+
+      const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
+      const response = await fetch(url);
+      const text = await response.text();
+      const data = JSON.parse(text); 
+
+      return data
+  } catch (error) {
+    throw error
+  }
+
+}
