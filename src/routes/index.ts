@@ -11,7 +11,7 @@ import {
 } from "../controllers/shopify-controller";
 
 import { registerUser, loginUser } from "../controllers/user-controller";
-import { searchEuras, searchAppliances, searchProductsByAppliances, searchEurasApplianceCategories, searchProductsByAppliancesCategory } from "../controllers/euras-controller";
+import { searchEuras, searchAppliances, searchProductsByAppliances, searchEurasApplianceCategories, searchEurasSuggestList } from "../controllers/euras-controller";
 
 const router = express.Router();
 
@@ -25,8 +25,8 @@ router.use(requireAuth);
 router.get("/eurasProductSearch", searchEuras);
 router.get("/eurasAppliancesSearch", searchAppliances);
 router.get("/eurasProductsByAppliances", searchProductsByAppliances);
-router.get("/eurasProductsByAppliancesCategory", searchProductsByAppliancesCategory);
 router.get("/eurasApplianceCategories", searchEurasApplianceCategories);
+router.get("/eurasSuggestList", searchEurasSuggestList);
 router.post("/addProduct", addProduct);
 router.post("/shopifyGraphiql", graphQLController);
 router.delete("/deleteProduct/:productId", deleteProduct);

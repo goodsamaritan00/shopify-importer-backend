@@ -2,7 +2,6 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import User from "../models/user-schema";
 
 const requireAuth = async (req: any, res: any, next: any) => {
-  // Let OPTIONS requests pass through (CORS preflight)
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -18,7 +17,6 @@ const requireAuth = async (req: any, res: any, next: any) => {
     throw new Error("Secret not defined.");
   }
 
-  // Split 'Bearer' and token
   const token = authorization.split(" ")[1];
 
   try {

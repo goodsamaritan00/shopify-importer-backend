@@ -2,12 +2,7 @@ import cleanProductName from "./format-euras-product-name";
 
 const formatEurasData = (product: any) => {
   const newPart = {
-    title:
-      cleanProductName(
-        product.artikelbezeichnung,
-        product.artikelnummer,
-        product.originalnummer,
-      ) || "Ohne Titel",
+    title: product.artikelbezeichnung || "Ohne Titel",
     body_html: `
       <p><strong>Artikelnummer:</strong> ${product.artikelnummer}</p>
       <p><strong>Originalnummer:</strong> ${product.originalnummer}</p>
@@ -24,7 +19,11 @@ const formatEurasData = (product: any) => {
             src: product.picurlbig,
           },
         ]
-      : [],
+      : [
+          {
+            src: "https://i.postimg.cc/Zq5jwGFg/no-photo.jpg",
+          },
+        ],
     tags: [
       product.artikelnummer,
       product.ersatzartikel,
@@ -39,6 +38,7 @@ const formatEurasData = (product: any) => {
         price: product.ekpreis,
         inventory_management: "shopify",
         inventory_policy: product.bestellbar === "J" ? "continue" : "deny",
+        inventory_quantity: product.bestellbar === "J" ? 1 : 0,
       },
     ],
   };

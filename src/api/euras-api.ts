@@ -134,40 +134,48 @@ export const fetchEurasAppliances = async (suchbg: string, anzahl: string, seite
 }
 
 // Get products by selected appliance
-export const fetchEurasProductsByAppliances = async (suchbg: string, seite: string, geraeteid: string) => {
-
+export const fetchEurasProductsByAppliances = async (
+  suchbg?: string,
+  vgruppe?: string,
+  seite?: string,
+  geraeteid?: string
+) => {
   const eurasToken = process.env.EURAS_TOKEN;
   const sessionId = await getCachedSession();
-  
+
+  if (!eurasToken) {
+    throw new Error("Token not provided");
+  }
+
+  const params = new URLSearchParams({
+    format: "json",
+    id: eurasToken,
+    art: "geraeteartikel",
+    sessionid: sessionId,
+    seite: seite || "1",
+    geraeteid: geraeteid || "",
+    attrib: "1",
+    bigPicture: "1",
+  });
+
+  if (suchbg) {
+    params.set("suchbg", suchbg);
+  }
+  if (vgruppe) {
+    params.set("vgruppe", vgruppe);
+  }
+
+  const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
   try {
-
-    if (!eurasToken) {
-      throw new Error("Token not provided");
-    }
-
-    const params = new URLSearchParams({
-      format: "json",
-      id: eurasToken,
-      art: "geraeteartikel", 
-      sessionid: sessionId,
-      seite: seite,
-      suchbg: suchbg,
-      geraeteid: geraeteid,
-      attrib: '1',
-      bigPicture: '1'
-    });
-
-    const url = `https://shop.euras.com/eed.php?${params.toString()}`;
-
     const response = await fetch(url);
     const text = await response.text();
-    const data = JSON.parse(text);
-
-    return data
+    return JSON.parse(text);
   } catch (error) {
-    throw error
+    console.error("Error fetching products:", error);
+    throw error;
   }
-}
+};
 
 // Get products by selected appliance
 export const fetchEurasProductsByAppliancesCategory = async (vgruppe: string, seite: string, geraeteid: string) => {
@@ -233,6 +241,37 @@ export const fetchEurasApplianceCategories = async (geraeteid: string) => {
         art: "geraeteartikelgruppen", 
         sessionid: sessionId,
         geraeteid: geraeteid
+      });
+
+      const url = `https://shop.euras.com/eed.php?${params.toString()}`;
+
+      const response = await fetch(url);
+      const text = await response.text();
+      const data = JSON.parse(text); 
+
+      return data
+  } catch (error) {
+    throw error
+  }
+
+}
+
+// suggest user search input
+export const fetchSuggestList = async (suchbg: string) => {
+  const eurasToken = process.env.EURAS_TOKEN;
+  const sessionId = await getCachedSession();
+
+  try {
+     if (!eurasToken) {
+      throw new Error("Token not provided");
+      }
+
+      const params = new URLSearchParams({
+        format: "json",
+        id: eurasToken,
+        art: "suggestliste", 
+        sessionid: sessionId,
+        suchbg: suchbg
       });
 
       const url = `https://shop.euras.com/eed.php?${params.toString()}`;
