@@ -4,29 +4,45 @@ import { io } from "./index";
 import compareObjects from "./utils/compare-objects";
 import cron from 'node-cron'
 
-const updateProducts = async () => {
+
+const updateProducts = async (batchSize = 20) => {
   const data = await getImportedProducts()
   const products = data.products
+  let productsToUpdate = [] 
+  let batchNr = 0
 
-  for (const product of products) {
-    const sku = product.variants[0].sku
+  for (let i = 0; i < products.length; i+= batchSize) {
+    batchNr++
 
-    try {
-      const freshData = await fetchEurasProductBySKU(sku)
+    console.log('batch number:', batchNr)
 
-      if (!compareObjects(product, freshData)) {
-        updateShopifyProduct(product.id, freshData)
+    const batch = products.slice(i, i + batchSize)
 
-        console.log('prdocuts updated', product.title)
-      } else {
-        console.log('Products up to date')
-      }
-    } catch (error) {
-      console.error(error)
-    }
+    await Promise.all(
+      batch.map(async (product: any) => {
+        const sku = product.variants[0].sku
+
+        try {
+          const freshData = await fetchEurasProductBySKU(sku)
+
+          if (!compareObjects(product, freshData)) {
+            console.log(product.title, 'needs an update')
+          } else {
+            console.log('All products up to date.')
+          }
+
+        } catch (error) {
+          console.log("Error while updating product:", product.title, error)
+        }
+      })
+    )
+
   }
 }
 
+
+
+// updateProducts()
 
 
 // cron.schedule("* * * * *", () => {

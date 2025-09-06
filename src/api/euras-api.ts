@@ -15,7 +15,6 @@ async function createSession(): Promise<string> {
     id: EED_ID,
     art: "neuesitzung",
   });
-  console.log("EED_ID:", EED_ID);
 
   const url = `https://shop.euras.com/eed.php?${params.toString()}`;
 
@@ -158,12 +157,14 @@ export const fetchEurasProductsByAppliances = async (
     bigPicture: "1",
   });
 
-  if (suchbg) {
-    params.set("suchbg", suchbg);
-  }
-  if (vgruppe) {
-    params.set("vgruppe", vgruppe);
-  }
+    if (suchbg) {
+      params.delete("vgruppe");              // remove category
+      params.set("suchbg", suchbg);     // set search
+    } else if (vgruppe) {
+      params.delete("suchbg");               // remove search
+      params.set("vgruppe", vgruppe);       // set category
+    }
+
 
   const url = `https://shop.euras.com/eed.php?${params.toString()}`;
 
