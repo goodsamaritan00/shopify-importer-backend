@@ -12,7 +12,7 @@ const extractProductData = (item: any) => {
     ),
     artikelhersteller: item.artikelhersteller,
     vgruppenname: item.vgruppenname,
-    ekpreis: Number(item.ekpreis.replace(',', '.')).toFixed(2),
+    ekpreis: Number(item.ekpreis.replace(",", ".")).toFixed(2),
     bestellbar: item.bestellbar,
     ersatzartikel: item.ersatzartikel,
     lieferzeit: item.lieferzeit,

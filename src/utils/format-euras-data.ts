@@ -1,8 +1,8 @@
 import cleanProductName from "./format-euras-product-name";
 
-const formatEurasData = (product: any) => {
+export const formatEurasData = (product: any) => {
   const newPart = {
-    title: product.artikelbezeichnung || "Ohne Titel",
+    title: cleanProductName(product.artikelbezeichnung, product.artikelnummer, product.originalnummer) || "Ohne Titel",
     body_html: `
       <p><strong>Artikelnummer:</strong> ${product.artikelnummer}</p>
       <p><strong>Originalnummer:</strong> ${product.originalnummer}</p>
@@ -46,4 +46,23 @@ const formatEurasData = (product: any) => {
   return newPart;
 };
 
-export default formatEurasData;
+export const toGraphQLProductInput = (product: any, shopifyProductId: number, variantIds: number[]) => {
+  return {
+    id: `gid://shopify/Product/${shopifyProductId}`,
+    title: product.title,
+    bodyHtml: product.body_html,
+    vendor: product.vendor,
+    productType: product.product_type,
+    tags: product.tags,
+    images: product.images,
+    variants: product.variants.map((v: any, i: number) => ({
+      id: `gid://shopify/ProductVariant/${variantIds[i]}`, // use corresponding variant ID
+      sku: v.sku,
+      price: v.price,
+      inventoryQuantity: v.inventory_quantity,
+      inventoryManagement: v.inventory_management?.toUpperCase(),
+      inventoryPolicy: v.inventory_policy?.toUpperCase(),
+    })),
+  };
+};
+

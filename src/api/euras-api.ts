@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
-import formatEurasData from "../utils/format-euras-data";
+import { formatEurasData } from "../utils/format-euras-data";
+import extractProductData from "../utils/extract-euras-product";
 dotenv.config();
 
 // CREATE EURAS SESSION
 async function createSession(): Promise<string> {
-  const EED_ID = "UOoLEAQBfex57Q6O";
+  const EED_ID = process.env.EED_ID
 
   if (!EED_ID) {
     throw new Error("EURAS_TOKEN environment variable is not defined");
@@ -157,14 +158,15 @@ export const fetchEurasProductsByAppliances = async (
     bigPicture: "1",
   });
 
-    if (suchbg) {
-      params.delete("vgruppe");              // remove category
-      params.set("suchbg", suchbg);     // set search
-    } else if (vgruppe) {
-      params.delete("suchbg");               // remove search
-      params.set("vgruppe", vgruppe);       // set category
-    }
+if (suchbg) {
+  params.delete("vgruppe");  // remove category
+  params.set("suchbg", suchbg);
+}
 
+if (vgruppe) {
+  params.delete("suchbg");   // remove search
+  params.set("vgruppe", vgruppe);
+}
 
   const url = `https://shop.euras.com/eed.php?${params.toString()}`;
 
@@ -178,41 +180,6 @@ export const fetchEurasProductsByAppliances = async (
   }
 };
 
-// Get products by selected appliance
-export const fetchEurasProductsByAppliancesCategory = async (vgruppe: string, seite: string, geraeteid: string) => {
-
-  const eurasToken = process.env.EURAS_TOKEN;
-  const sessionId = await getCachedSession();
-  
-  try {
-
-    if (!eurasToken) {
-      throw new Error("Token not provided");
-    }
-
-    const params = new URLSearchParams({
-      format: "json",
-      id: eurasToken,
-      art: "geraeteartikel", 
-      sessionid: sessionId,
-      seite: seite,
-      vgruppe: vgruppe,
-      geraeteid: geraeteid,
-      attrib: '1',
-      bigPicture: '1'
-    });
-
-    const url = `https://shop.euras.com/eed.php?${params.toString()}`;
-
-    const response = await fetch(url);
-    const text = await response.text();
-    const data = JSON.parse(text);
-
-    return data
-  } catch (error) {
-    throw error
-  }
-}
 
 
 // GET EURAS PRODUCT BY ID
@@ -220,7 +187,8 @@ export const fetchEurasProductBySKU = async (sku: string) => {
   try {
     const data = await fetchEurasProducts(sku, "1", "1");
     const dataObj = Object.entries(data.treffer)[0][1];
-    return formatEurasData(dataObj);
+    const extractedData = extractProductData(dataObj)
+    return formatEurasData(extractedData);
   } catch (error) {
     console.log(error);
   }
