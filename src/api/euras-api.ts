@@ -71,8 +71,6 @@ export const fetchEurasProducts = async (
   try {
     console.time("session");
     const sessionId = await getCachedSession();
-    console.timeEnd("session");
-
 
     const params = new URLSearchParams({
       format: "json",
@@ -119,7 +117,7 @@ export const fetchEurasAppliances = async (suchbg: string, anzahl: string, seite
       anzahl: anzahl,
       seite: seite,
       suchbg: suchbg
-    });
+    }); 
 
     const url = `https://shop.euras.com/eed.php?${params.toString()}`;
 
@@ -152,7 +150,7 @@ export const fetchEurasProductsByAppliances = async (
     id: eurasToken,
     art: "geraeteartikel",
     sessionid: sessionId,
-    seite: seite || "1",
+    seite: seite || "",
     geraeteid: geraeteid || "",
     attrib: "1",
     bigPicture: "1",

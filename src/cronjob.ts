@@ -1,5 +1,5 @@
 import { fetchEurasProductBySKU } from "./api/euras-api";
-import { getImportedProducts, runBulkUpdate, updateShopifyProduct } from "./api/shopify-api";
+import { getImportedProducts, updateShopifyProduct } from "./api/shopify-api";
 import { io } from "./index";
 import compareObjects from "./utils/compare-objects";
 import cron from 'node-cron'
@@ -8,11 +8,17 @@ import { toGraphQLProductInput } from "./utils/format-euras-data";
 
 // let productsToUpdate: any = [] 
 
+// const delay = async (ms: number) => {
+//     console.log('Delay', ms)
+//     return new Promise((resolve) => setTimeout(resolve, ms));
+// }
 
-// const checkForUpdate = async (batchSize = 20) => {
+// const updateProducts = async (batchSize = 4) => {
 //   const data = await getImportedProducts()
-//   const products = data.products
+//   const products = data.products.slice(24, 36)
 //   let batchNr = 0
+
+//           let productsnr: number = 0
 
 //   for (let i = 0; i < products.length; i+= batchSize) {
 //     batchNr++
@@ -21,60 +27,31 @@ import { toGraphQLProductInput } from "./utils/format-euras-data";
 
 //     const batch = products.slice(i, i + batchSize)
 
-//     await Promise.all(
-//       batch.map(async (product: any) => {
-//         const sku = product.variants[0].sku
+//     for (const product of products) {
+//       const sku = product.variants[0].sku
+//       console.log("SKU", sku, product.title)
 
-//      try {
-//       const freshData = await fetchEurasProductBySKU(sku);
+//       try {
+//         const freshData = await fetchEurasProductBySKU(sku)
 
-//       if (!compareObjects(product, freshData)) {
-//         updateShopifyProduct(product.id, freshData)
-//         const updateData = { 
-//           id: `gid://shopify/Product/${product.id}`, 
-//           ...freshData,
-//           variants: freshData?.variants.map((v: any, i: number) => ({
-//             id: `gid://shopify/ProductVariant/${product.variants[i].id}`, // use existing variant ID
-//             ...v
-//           }))
-//         };
-
-//           productsToUpdate.push(updateData);
-
-//       } else {
-//         console.log('Product up to date');
+//         if (!freshData) {
+//           console.log("Can't fetch data for product", sku)
+//         } else if (!compareObjects(product, freshData)) {
+//           console.log("needs update", product.title)
+//           // await updateShopifyProduct(product.id, freshData)
+//         } else {
+//           console.log("Product up to date")
+//         }
+//       } catch (error) {
+//         console.log("Error while updating product:", product.title, error)
 //       }
 
-//     } catch (error) {
-//       console.log("Error while updating product:", product.title, error);
+//       await delay(5000)
 //     }
-//       })
-//     )
-//   }
 
-// }
-
-// const generateJSONL = (products: any[]) => {
-//   return products.map((product) => {
-//     return JSON.stringify({ input: product })
-//   }).join("\n")
+//       }
 // }
 
 
-// const test = async () => {
-//     await checkForUpdate()
-//     const jsonlres = generateJSONL(productsToUpdate)
-//     console.log('products',productsToUpdate)
-//     console.log('jsonl', jsonlres)
-// }
+// updateProducts()
 
-
-
-// test()
-
-// checkForUpdate()
-
-// cron.schedule("* * * * *", () => {
-//   console.log("Cronjob started");
-//   checkForUpdate();
-// });

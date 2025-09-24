@@ -135,30 +135,13 @@ export const postGraphQLQuery = async (query: any) => {
 
 // Graph ql bulk update for conjob or multiple product selection
 
-export const runBulkUpdate = async (productsToUpdate: any[]) => {
-  const url = "https://escooter-reparatur.myshopify.com/admin/api/2025-04/graphql.json";
+interface BulkUpdateResponse {
+  bulkOperationRunQuery: {
+    bulkOperation: { id: string; status: string };
+    userErrors: Array<{ field: string[]; message: string }>;
+  };
+}
 
-  const mutations = productsToUpdate.map((p, i) => `
-    update${i}: productUpdate(input: ${JSON.stringify(p).replace(/"([^"]+)":/g, '$1:')}) {
-      product { id title }
-      userErrors { field message }
-    }
-  `).join("\n");
 
-  const query = `mutation { ${mutations} }`;
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_TOKEN!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  const result = await response.json();
-  console.log("Bulk update submitted:", result);
-
-  return result
-};
 
