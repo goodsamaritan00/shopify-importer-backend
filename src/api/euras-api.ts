@@ -154,17 +154,18 @@ export const fetchEurasProductsByAppliances = async (
     geraeteid: geraeteid || "",
     attrib: "1",
     bigPicture: "1",
+    vgruppe: "top"
   });
 
-if (suchbg) {
-  params.delete("vgruppe");  // remove category
-  params.set("suchbg", suchbg);
-}
+// if (suchbg) {
+//   params.delete("vgruppe");  // remove category
+//   params.set("suchbg", suchbg);
+// }
 
-if (vgruppe) {
-  params.delete("suchbg");   // remove search
-  params.set("vgruppe", vgruppe);
-}
+// if (vgruppe) {
+//   params.delete("suchbg");   // remove search
+//   params.set("vgruppe", vgruppe);
+// }
 
   const url = `https://shop.euras.com/eed.php?${params.toString()}`;
 

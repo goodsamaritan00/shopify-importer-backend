@@ -22,8 +22,8 @@ export const addProduct = async (req: Request, res: Response) => {
 // GET ALL IMPORTED PRODUCTS
 export const importedProducts = async (req: Request, res: Response) => {
   try {
-    const data = await getImportedProducts();
-    return res.json(data);
+    const products = await getImportedProducts();
+    return res.json({ products });
   } catch (error) {
     console.error("Failed to fetch from Shopify:", error);
     return res.status(500).json({ error: "Internal server error" });

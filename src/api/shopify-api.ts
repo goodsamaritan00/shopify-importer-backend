@@ -32,28 +32,40 @@ export const addProductToShopify = async (product: any) => {
 
 // GET ALL IMPORTED PRODUCTS
 export const getImportedProducts = async () => {
-  if (!shopifyAdminToken) {
-    throw new Error("Invalid or missing Shopify API token");
-  }
+  if (!shopifyAdminToken) throw new Error("Invalid or missing Shopify API token");
 
-  const url =
+  let products: any[] = [];
+  let url: any =
     "https://escooter-reparatur.myshopify.com/admin/api/2025-04/products.json?limit=250&vendor=EURAS/ASWO";
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "X-Shopify-Access-Token": shopifyAdminToken,
-      "Content-Type": "application/json",
-    },
-  });
+  while (url) {
+    const response = await fetch(url, {
+      headers: {
+        "X-Shopify-Access-Token": shopifyAdminToken,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.statusText}`);
+    if (!response.ok) throw new Error(`Shopify API error: ${response.statusText}`);
+
+    const data = await response.json();
+    console.log("Fetched page:", data.products.length, "products");
+    products.push(...data.products);
+
+    // look for next page
+    const linkHeader = response.headers.get("link");
+    if (linkHeader) {
+      const nextMatch = linkHeader.match(/<([^>]+)>; rel="next"/);
+      url = nextMatch ? nextMatch[1] : null;
+    } else {
+      url = null;
+    }
   }
 
-  const data = await response.json();
-  return data;
+  console.log("Total collected:", products.length);
+  return products;
 };
+
 
 // UPDATE IMPORTED PRODUCT
 export async function updateShopifyProduct(
@@ -141,7 +153,3 @@ interface BulkUpdateResponse {
     userErrors: Array<{ field: string[]; message: string }>;
   };
 }
-
-
-
-
